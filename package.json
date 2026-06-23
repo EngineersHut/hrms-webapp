@@ -1,0 +1,82 @@
+{
+  "name": "hrms-desktop",
+  "productName": "HRMS",
+  "version": "1.0.0",
+  "description": "Enterprise HRMS Desktop Application",
+  "main": "main.js",
+  "scripts": {
+    "dev": "electron .",
+    "build:win": "electron-builder --win",
+    "build:linux": "electron-builder --linux",
+    "build:all": "electron-builder -wl"
+  },
+  "keywords": [
+    "HRMS",
+    "Desktop",
+    "Electron",
+    "Enterprise"
+  ],
+  "author": {
+    "name": "EH Workspace",
+    "email": "support@ehworkspace.com"
+  },
+  "homepage": "https://hrms.ehworkspace.com",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "electron-log": "^5.1.5",
+    "electron-updater": "^6.1.8"
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.ehworkspace.hrms",
+    "productName": "HRMS",
+    "directories": {
+      "output": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "HRMS",
+      "installerIcon": "assets/icon.ico",
+      "uninstallerIcon": "assets/icon.ico"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Office",
+      "icon": "assets/icon.png",
+      "synopsis": "HRMS Desktop Application",
+      "description": "Enterprise HRMS Desktop Application with Auto-Updates and Tray integration.",
+      "maintainer": "EH Workspace <support@ehworkspace.com>",
+      "desktop": {
+        "Name": "HRMS",
+        "Type": "Application",
+        "Categories": "Office;"
+      }
+    },
+    "publish": {
+      "provider": "generic",
+      "url": "https://hrms.ehworkspace.com/downloads/updates"
+    }
+  }
+}
