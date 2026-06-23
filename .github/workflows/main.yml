@@ -1,1 +1,74 @@
+name: Build & Package HRMS Desktop App
 
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch: # Allows manual trigger from the GitHub UI
+
+jobs:
+  build:
+    name: Build cross-platform installers
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: package.json
+
+      - name: Install Dependencies
+        run: npm install
+
+      # ---------------------------------------------
+      # WINDOWS BUILD
+      # ---------------------------------------------
+      - name: Build Windows Installer
+        if: matrix.os == 'windows-latest'
+        run: npm run build:win
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ---------------------------------------------
+      # LINUX BUILD (Debian & AppImage)
+      # ---------------------------------------------
+      - name: Build Linux Installers
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ruby-dev rpm libarchive-tools
+          sudo gem install fpm
+          npm run build:linux
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ---------------------------------------------
+      # UPLOAD ARTIFACTS TO GITHUB
+      # ---------------------------------------------
+      - name: Upload Windows Output
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: HRMS-Windows-Installer
+          path: build/HRMS Setup*.exe
+          if-no-files-found: error
+
+      - name: Upload Linux Outputs
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: HRMS-Linux-Installers
+          path: |
+            build/HRMS*.AppImage
+            build/hrms-desktop*.deb
+          if-no-files-found: error
