@@ -40,6 +40,7 @@ app.on('second-instance', () => {
 // Create splash window
 function createSplashWindow() {
   log.info('Creating splash screen window...');
+  const iconPath = path.join(__dirname, 'assets', process.platform === 'win32' ? 'icon.ico' : 'icon.png');
   splashWindow = new BrowserWindow({
     width: 460,
     height: 310,
@@ -48,6 +49,7 @@ function createSplashWindow() {
     transparent: true,
     alwaysOnTop: true,
     center: true,
+    icon: iconPath,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -98,6 +100,7 @@ function loadMainWindow() {
   // Track window size and position
   windowStateManager = new WindowStateManager('main', { width: 1280, height: 800 });
 
+  const iconPath = path.join(__dirname, 'assets', process.platform === 'win32' ? 'icon.ico' : 'icon.png');
   mainWindow = new BrowserWindow({
     x: windowStateManager.state.x,
     y: windowStateManager.state.y,
@@ -105,6 +108,7 @@ function loadMainWindow() {
     height: windowStateManager.state.height,
     show: false, // Keep hidden until fully loaded or splash finishes
     title: 'HRMS Portal',
+    icon: iconPath,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
