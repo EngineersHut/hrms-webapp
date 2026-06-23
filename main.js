@@ -19,7 +19,6 @@ if (!gotTheLock) {
 }
 
 let mainWindow = null;
-let splashWindow = null;
 let windowStateManager = null;
 let isUpdateDownloading = false;
 let mainLoaded = false;
@@ -37,59 +36,6 @@ app.on('second-instance', () => {
   }
 });
 
-// Create splash window
-function createSplashWindow() {
-  log.info('Creating splash screen window...');
-  const iconPath = path.join(__dirname, 'assets', process.platform === 'win32' ? 'icon.ico' : 'icon.png');
-  splashWindow = new BrowserWindow({
-    width: 460,
-    height: 310,
-    frame: false,
-    resizable: false,
-    transparent: true,
-    alwaysOnTop: true,
-    center: true,
-    icon: iconPath,
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
-      contextIsolation: true,
-      nodeIntegration: false
-    }
-  });
-
-  splashWindow.loadFile(path.join(__dirname, 'src', 'splash.html'));
-
-  splashWindow.once('ready-to-show', () => {
-    splashWindow.show();
-    
-    // Initialize updates check
-    initUpdater(mainWindow, splashWindow, (downloading) => {
-      if (downloading) {
-        isUpdateDownloading = true;
-        log.info('An update is available and downloading in the background. Retaining splash screen.');
-      } else {
-        log.info('No update downloading. Ready to load main window.');
-        loadMainWindow();
-      }
-    });
-
-    // Run startup update check
-    triggerCheck(false, splashWindow);
-
-    // Safety timeout: transition after 8 seconds anyway to prevent stuck splash screen
-    setTimeout(() => {
-      if (!isUpdateDownloading) {
-        log.info('Update check safety timeout reached. Transitioning to main window...');
-        loadMainWindow();
-      }
-    }, 8000);
-  });
-
-  splashWindow.on('closed', () => {
-    splashWindow = null;
-  });
-}
-
 // Initialize main portal window
 function loadMainWindow() {
   if (mainLoaded) return;
@@ -106,7 +52,7 @@ function loadMainWindow() {
     y: windowStateManager.state.y,
     width: windowStateManager.state.width,
     height: windowStateManager.state.height,
-    show: false, // Keep hidden until fully loaded or splash finishes
+    show: false, // Keep hidden until fully loaded
     title: 'EH Workspace',
     icon: iconPath,
     webPreferences: {
@@ -148,6 +94,19 @@ function loadMainWindow() {
     }
   });
 
+  // Initialize updates check
+  initUpdater(mainWindow, null, (downloading) => {
+    if (downloading) {
+      isUpdateDownloading = true;
+      log.info('An update is available and downloading in the background.');
+    } else {
+      log.info('No update downloading.');
+    }
+  });
+
+  // Run startup update check
+  triggerCheck(false, mainWindow);
+
   // Load the production HRMS live portal URL
   const portalUrl = 'https://hrms.ehworkspace.com/signin';
   mainWindow.loadURL(portalUrl);
@@ -160,10 +119,8 @@ function loadMainWindow() {
   mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
     log.error(`Failed to load live portal: ${errorDescription} (${errorCode}). Retrying in 5 seconds...`);
     
-    // Notify user of connection issue in splash screen if still open
-    if (splashWindow && !splashWindow.isDestroyed()) {
-      splashWindow.webContents.send('update-status', 'Connection offline. Retrying...');
-    }
+    // Show window on connection failure so user knows it's offline/retrying
+    showMainWindow();
 
     setTimeout(() => {
       if (mainWindow && !mainWindow.isDestroyed()) {
@@ -173,13 +130,8 @@ function loadMainWindow() {
   });
 }
 
-// Show the main window and dispose of the splash screen
+// Show the main window
 function showMainWindow() {
-  if (splashWindow && !splashWindow.isDestroyed()) {
-    splashWindow.close();
-    splashWindow = null;
-  }
-
   if (mainWindow && !mainWindow.isDestroyed()) {
     if (isStartHidden) {
       log.info('Application started via autostart. Remaining hidden in tray.');
@@ -227,8 +179,8 @@ app.whenReady().then(async () => {
   const isAutoLaunch = await autoLaunch.isEnabled();
   log.info(`Auto-launch status on start: ${isAutoLaunch}`);
 
-  // Create UI windows
-  createSplashWindow();
+  // Create UI windows directly
+  loadMainWindow();
 });
 
 // Quit when all windows are closed, except on macOS
@@ -241,7 +193,7 @@ app.on('window-all-closed', () => {
 
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
-    createSplashWindow();
+    loadMainWindow();
   }
 });
 
