@@ -107,7 +107,7 @@ function loadMainWindow() {
     width: windowStateManager.state.width,
     height: windowStateManager.state.height,
     show: false, // Keep hidden until fully loaded or splash finishes
-    title: 'HRMS Portal',
+    title: 'EH Workspace',
     icon: iconPath,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -196,6 +196,11 @@ function showMainWindow() {
 // App Initialization
 app.whenReady().then(async () => {
   log.info('Electron app ready.');
+  
+  // Set App User Model ID for Windows taskbar icon consistency
+  if (process.platform === 'win32') {
+    app.setAppUserModelId('com.ehworkspace.hrms');
+  }
   
   // Register IPC API Handlers
   ipcMain.handle('get-app-version', () => app.getVersion());
