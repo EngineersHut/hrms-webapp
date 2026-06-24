@@ -53,7 +53,7 @@ function loadMainWindow() {
     width: windowStateManager.state.width,
     height: windowStateManager.state.height,
     show: false, // Keep hidden until fully loaded
-    title: 'EH Workspace',
+    title: 'HRMS',
     icon: iconPath,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),

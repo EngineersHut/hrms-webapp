@@ -18,8 +18,8 @@
     "Enterprise"
   ],
   "author": {
-    "name": "EH Workspace",
-    "email": "support@ehworkspace.com"
+    "name": "HRMS Team",
+    "email": "support@hrms.com"
   },
   "homepage": "https://hrms.ehworkspace.com",
   "license": "UNLICENSED",
@@ -97,7 +97,7 @@
       "icon": "assets/icon.png",
       "synopsis": "HRMS Desktop Application",
       "description": "Enterprise HRMS Desktop Application with Auto-Updates and Tray integration.",
-      "maintainer": "EH Workspace <support@ehworkspace.com>",
+      "maintainer": "HRMS Team <support@hrms.com>",
       "desktop": {
         "Name": "HRMS",
         "Type": "Application",
