@@ -104,6 +104,9 @@
         "Categories": "Office;"
       }
     },
+    "deb": {
+      "compression": "xz"
+    },
     "publish": {
       "provider": "generic",
       "url": "https://hrms.ehworkspace.com/downloads/updates"
