@@ -1,7 +1,7 @@
 {
   "name": "hrms-desktop",
   "productName": "HRMS",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Enterprise HRMS Desktop Application",
   "main": "main.js",
   "scripts": {
