@@ -62,10 +62,11 @@ graph TD
 
 ## 3. Configuration & Compilation Scripts
 
-The build pipeline uses `electron-builder` to target Windows and Linux platforms from a unified workspace configuration located inside `package.json`.
+The build pipeline uses `electron-builder` to target Windows, macOS, and Linux platforms from a unified workspace configuration located inside `package.json`.
 
 ### Build Targets
 *   **Windows**: Outputs a customized **NSIS Installer (.exe)** supporting custom directories, desktop shortcuts, and Start Menu links.
+*   **macOS**: Outputs a **DMG Installer (.dmg)** and a standard zipped application bundle (**macOS App**).
 *   **Linux**: Outputs an **AppImage** (universal executable) and a **Debian Package (.deb)** (fully compatible with Ubuntu, Debian, and Linux Mint).
 
 ### Command List
@@ -77,13 +78,14 @@ Run these commands in the terminal depending on your target:
 | **Development Mode** | `npm run dev` | Interactively run live portal | Console/Window |
 | **Windows Build** | `npm run build:win` | NSIS Installer (`.exe`) | `build/` |
 | **Linux Build** | `npm run build:linux` | AppImage & Debian Package (`.deb`) | `build/` |
-| **All Platforms** | `npm run build:all` | Compile Windows + Linux outputs | `build/` |
+| **macOS Build** | `npm run build:mac` | DMG & App Zip (`.dmg`, `.zip`) | `build/` |
+| **All Platforms** | `npm run build:all` | Compile Win + Linux + Mac outputs | `build/` |
 
 ---
 
 ## 4. Production Code Signing Guidelines
 
-For distribution in commercial environments, you should set up code signing to prevent OS warning screens (such as Microsoft Defender SmartScreen or Linux installation prompts).
+For distribution in commercial environments, you should set up code signing to prevent OS warning screens (such as Microsoft Defender SmartScreen, macOS Gatekeeper, or Linux installation prompts).
 
 ### Windows Signing
 To sign the Windows `.exe` installer, you need a valid **Code Signing Certificate (EV or OV)**:
@@ -91,6 +93,16 @@ To sign the Windows `.exe` installer, you need a valid **Code Signing Certificat
 2. Define the following environment variables on your CI/CD pipeline or build machine before running `npm run build:win`:
    *   `CSC_LINK`: Path or URL to your `.pfx` certificate file.
    *   `CSC_KEY_PASSWORD`: Password to decrypt the certificate file.
+
+### macOS Signing & Notarization
+To distribute desktop software on macOS outside the Mac App Store without triggering Apple Gatekeeper security warnings:
+1. You must have a valid **Apple Developer Account** and a **Developer ID Application** certificate.
+2. For automatic signing and notarization during packaging, set the following environment variables:
+   *   `CSC_LINK`: Base64 encoded `.p12` certificate or path to your `.p12` file.
+   *   `CSC_KEY_PASSWORD`: Password for the `.p12` file.
+   *   `APPLE_ID`: Your Apple ID email address.
+   *   `APPLE_ID_PASSWORD`: An app-specific password generated via account.apple.com.
+   *   `APPLE_TEAM_ID`: Your 10-character Apple Developer Team ID.
 
 ### Linux Packages
 For Debian (`.deb`) distributions, packages are typically signed using GPG:

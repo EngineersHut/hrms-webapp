@@ -25,7 +25,7 @@ Icon=hrms
 const autoLaunch = {
   isEnabled: async () => {
     try {
-      if (process.platform === 'win32') {
+      if (process.platform === 'win32' || process.platform === 'darwin') {
         const settings = app.getLoginItemSettings();
         return settings.openAtLogin;
       } else if (process.platform === 'linux') {
@@ -40,13 +40,13 @@ const autoLaunch = {
 
   enable: async () => {
     try {
-      if (process.platform === 'win32') {
+      if (process.platform === 'win32' || process.platform === 'darwin') {
         app.setLoginItemSettings({
           openAtLogin: true,
           path: app.getPath('exe'),
           args: ['--hidden']
         });
-        log.info('Auto-launch enabled on Windows');
+        log.info(`Auto-launch enabled on ${process.platform === 'win32' ? 'Windows' : 'macOS'}`);
       } else if (process.platform === 'linux') {
         const autostartPath = getLinuxAutostartPath();
         const dir = path.dirname(autostartPath);
@@ -70,11 +70,11 @@ const autoLaunch = {
 
   disable: async () => {
     try {
-      if (process.platform === 'win32') {
+      if (process.platform === 'win32' || process.platform === 'darwin') {
         app.setLoginItemSettings({
           openAtLogin: false
         });
-        log.info('Auto-launch disabled on Windows');
+        log.info(`Auto-launch disabled on ${process.platform === 'win32' ? 'Windows' : 'macOS'}`);
       } else if (process.platform === 'linux') {
         const autostartPath = getLinuxAutostartPath();
         if (fs.existsSync(autostartPath)) {

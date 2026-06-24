@@ -14,7 +14,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest]
+        os: [windows-latest, ubuntu-latest, macos-latest]
 
     steps:
       - name: Checkout Code
@@ -53,6 +53,15 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # ---------------------------------------------
+      # MACOS BUILD (DMG & Zip)
+      # ---------------------------------------------
+      - name: Build macOS Installer
+        if: matrix.os == 'macos-latest'
+        run: npm run build:mac
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ---------------------------------------------
       # UPLOAD ARTIFACTS TO GITHUB
       # ---------------------------------------------
       - name: Upload Windows Output
@@ -71,4 +80,14 @@ jobs:
           path: |
             build/HRMS*.AppImage
             build/hrms-desktop*.deb
+          if-no-files-found: error
+
+      - name: Upload macOS Outputs
+        if: matrix.os == 'macos-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: HRMS-macOS-Installers
+          path: |
+            build/HRMS*.dmg
+            build/HRMS*.zip
           if-no-files-found: error
